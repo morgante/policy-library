@@ -94,43 +94,50 @@ spec:
             	"details": metadata,
 
             }] {
+            	# constraint := input.constraint
 
-            	constraint := input.constraint
+            	# lib.get_constraint_params(constraint, params)
 
-            	lib.get_constraint_params(constraint, params)
+            	# asset := input.asset
 
-            	asset := input.asset
-
-            	asset.asset_type == "google.compute.Instance"
+            	# asset.asset_type == "compute.googleapis.com/Instance"
 
             
 
             	# Find network access config block w/ external IP
 
-            	instance := asset.resource.data
+            	# instance := asset.resource.data
 
-            	access_config := instance.networkInterface[_].accessConfig
+            	# access_config := instance.networkInterfaces[_].accessConfigs
 
-            	external_ip := access_config[_].externalIp
-
-            
-
-            	# Check if instance is in blacklist/whitelist
-
-            	target_instances := params.instances
-
-            	matches := {asset.name} & cast_set(target_instances)
-
-            	target_instance_match_count(params.mode, desired_count)
-
-            	count(matches) == desired_count
+            	# count(access_config) > 0
 
             
 
-            	message := sprintf("%v is not allowed to have an external IP.", [asset.name])
+            	# # Check if instance is in blacklist/whitelist
 
-            	metadata := {"external_ip": external_ip}
+            	# target_instances := params.instances
 
+            	# matches := {asset.name} & cast_set(target_instances)
+
+            	# target_instance_match_count(params.mode, desired_count)
+
+            	# count(matches) == desired_count
+
+            
+
+              constraint := input.constraint
+              lib.get_constraint_info(constraint, info)
+              asset := input.asset
+              asset.asset_type == "compute.googleapis.com/Instance"
+
+              asset.resource.data.networkInterfaces[_].accessConfigs
+            
+              message := sprintf("%v violates on all resources.", [info.name])
+              metadata := {
+                "constraint": info,
+                "asset": asset,
+              }
             }
 
             
